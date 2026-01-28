@@ -2,12 +2,15 @@ package com.example.demo
 
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.image.ImagePrompt
+import org.springframework.ai.openai.OpenAiImageModel
 import org.springframework.stereotype.Service
 
 @Service
 class AIService(
     // DI
-    private val chatModel: ChatModel
+    private val chatModel: ChatModel,
+    private val imageChatModel: OpenAiImageModel
 ) {
     // 프론트에서 response를 알아서 변형하도록 Any 타입으로 설정
     fun sin1(text: String): Any {
@@ -54,5 +57,16 @@ class AIService(
             "사용자 입력 : {$text}"
         )
         return chatModel.call(prompt)
+    }
+
+    fun sin4(sin4Request: Sin4Request): Any {
+        val prompt = (
+            "마을의 여러 정책들인데 이 정책들을 바탕으로 마을이 변화하는 모습의 그림을 하나를 만들어줘 그림에 텍스트는 넣지 말아줘" +
+            "${sin4Request.sin1}\n" + "${sin4Request.sin2}\n" + "${sin4Request.sin3}\n"
+        )
+        // dall-e-3 사용
+        var imagePrompt = ImagePrompt(prompt)
+        // 이미지 URL이 반환된다.
+        return ImgResponse(imageChatModel.call(imagePrompt).result.output.url)
     }
 }
